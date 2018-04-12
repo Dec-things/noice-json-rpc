@@ -193,7 +193,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
                     target[prop] = (params: any) => this.notify(`${prefix}${method}`, params)
                 } else {
                     const method = prop
-                    target[prop] = (params: any) => this.call(`${prefix}${method}`, params)
+                    target[prop] = (...params) => this.call(`${prefix}${method}`, params)
                 }
 
                 return target[prop]
@@ -247,7 +247,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
                 // Handler is defined so lets call it
                 if (handler) {
                     try {
-                        const result: JsonRpc2.PromiseOrNot<any> = handler.call(null, request.params)
+                        const result: JsonRpc2.PromiseOrNot<any> = handler.call(null, ...(request.params))
                         if (result instanceof Promise) {
                             // Result is a promise, so lets wait for the result and handle accordingly
                             result.then((actualResult: any) => {
