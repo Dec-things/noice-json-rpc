@@ -193,7 +193,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
                     target[prop] = (params: any) => this.notify(`${prefix}${method}`, params)
                 } else {
                     const method = prop
-                    target[prop] = (...params) => this.call(`${prefix}${method}`, params)
+                    target[prop] = (...params: any[]) => this.call(`${prefix}${method}`, params)
                 }
 
                 return target[prop]
