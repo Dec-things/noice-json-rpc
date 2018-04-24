@@ -35,6 +35,7 @@ export declare class MessageError extends Error implements JsonRpc2.Error {
  * It just needs to pass in an object that implements LikeSocket interface
  */
 export declare class Client extends EventEmitter implements JsonRpc2.Client {
+    guid: string;
     private _socket;
     private _responsePromiseMap;
     private _nextMessageId;

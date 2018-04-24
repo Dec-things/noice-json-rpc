@@ -1,6 +1,7 @@
 import {JsonRpc2} from './json-rpc2'
 import {EventEmitter} from 'events'
 export {JsonRpc2}
+import * as uuidv4 from "uuid/v4"
 
 export interface LikeSocket {
     send(message: string): void
@@ -53,6 +54,7 @@ export class MessageError extends Error implements JsonRpc2.Error {
  * It just needs to pass in an object that implements LikeSocket interface
  */
 export class Client extends EventEmitter implements JsonRpc2.Client {
+    public guid = uuidv4()
     private _socket: LikeSocket
     private _responsePromiseMap: Map<number, {resolve: Function, reject: Function}> = new Map()
     private _nextMessageId: number = 0
@@ -146,7 +148,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
 
     call(method: string, params?: any): Promise<any> {
         const id = ++this._nextMessageId
-        const message: JsonRpc2.Request = {id, method, params}
+        const message: JsonRpc2.Request = {id, guid: this.guid, method, params}
 
         return new Promise((resolve, reject) => {
             try {
@@ -251,13 +253,13 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
                         if (result instanceof Promise) {
                             // Result is a promise, so lets wait for the result and handle accordingly
                             result.then((actualResult: any) => {
-                                this._send(socket, {id: request.id, result: actualResult || {}})
+                                this._send(socket, {id: request.id, guid: request.guid, result: actualResult || {}})
                             }).catch((error: Error) => {
                                 this._sendError(socket, request, JsonRpc2.ErrorCode.InternalError, error)
                             })
                         } else {
                             // Result is not a promise so send immediately
-                            this._send(socket, {id: request.id, result: result || {}})
+                            this._send(socket, {id: request.id, guid: request.guid, result: result || {}})
                         }
                     } catch (error) {
                         this._sendError(socket, request, JsonRpc2.ErrorCode.InternalError, error)
@@ -301,7 +303,9 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
         try {
             this._send(socket, {
                 id: request && request.id || -1,
-                error: this._errorFromCode(errorCode, error && error.message || error, request && request.method)
+                guid: request.guid,
+                error: this._errorFromCode(errorCode, error && error.message || error, request && request.method),
+                method: undefined
             })
         } catch (error) {
             // Since we can't even send errors, do nothing. The connection was probably closed.

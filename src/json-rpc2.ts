@@ -13,7 +13,8 @@ export namespace JsonRpc2 {
      */
     export interface Request extends Notification {
         /** An identifier established by the Client */
-        id: number
+        id: number,
+        guid: string
     }
 
     /**
@@ -39,6 +40,7 @@ export namespace JsonRpc2 {
     export interface Response {
         /** An identifier established by the Client. */
         id: number
+        guid: string
 
         /** Result object from the Server if method invocation was successful. */
         result?: any

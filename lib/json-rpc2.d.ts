@@ -14,6 +14,7 @@ export declare namespace JsonRpc2 {
     interface Request extends Notification {
         /** An identifier established by the Client */
         id: number;
+        guid: string;
     }
     /**
      * Client can send a request with no expectation of a response.
@@ -35,6 +36,7 @@ export declare namespace JsonRpc2 {
     interface Response {
         /** An identifier established by the Client. */
         id: number;
+        guid: string;
         /** Result object from the Server if method invocation was successful. */
         result?: any;
         /** Error object from Server if method invocation resulted in an error. */
