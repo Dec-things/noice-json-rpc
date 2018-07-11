@@ -1,6 +1,6 @@
 {
   "name": "@diginet/noice-json-rpc",
-  "version": "1.1.17",
+  "version": "1.1.19",
   "description": "Noice Json RPC exposes a clean ES6 Proxy and Promise based interface for JSON-RPC2 Clients and Servers",
   "main": "lib/noice-json-rpc.js",
   "typings": "lib/noice-json-rpc.d.ts",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/nojvek/noice-json-rpc"
+    "url": "git+ssh://git@github.com/Dec-things/noice-json-rpc"
   },
   "keywords": [
     "noice",
@@ -36,9 +36,9 @@
   "author": "nojvek",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nojvek/noice-json-rpc/issues"
+    "url": "https://github.com/Dec-things/noice-json-rpc/issues"
   },
-  "homepage": "https://github.com/nojvek/noice-json-rpc#readme",
+  "homepage": "https://github.com/Dec-things/noice-json-rpc#readme",
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.32",
