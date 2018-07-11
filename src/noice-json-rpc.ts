@@ -258,13 +258,13 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
                         if (result instanceof Promise) {
                             // Result is a promise, so lets wait for the result and handle accordingly
                             result.then((actualResult: any) => {
-                                this._send(socket, {id: request.id, noiceClientId: request.noiceClientId, clientId: request.clientId, result: actualResult || {}})
+                                this._send(socket, {id: request.id, noiceClientId: request.noiceClientId, clientId: request.clientId, result: actualResult !== undefined ? actualResult : {}})
                             }).catch((error: Error) => {
                                 this._sendError(socket, request, JsonRpc2.ErrorCode.InternalError, error)
                             })
                         } else {
                             // Result is not a promise so send immediately
-                            this._send(socket, {id: request.id, noiceClientId: request.noiceClientId, clientId: request.clientId, result: result || {}})
+                            this._send(socket, {id: request.id, noiceClientId: request.noiceClientId, clientId: request.clientId, result: result !== undefined ? result : {}})
                         }
                     } catch (error) {
                         this._sendError(socket, request, JsonRpc2.ErrorCode.InternalError, error)
