@@ -14,7 +14,10 @@ export declare namespace JsonRpc2 {
     interface Request extends Notification {
         /** An identifier established by the Client */
         id: number;
-        guid: string;
+        /** Unique id of the Client for routing response messages to the original Client instance */
+        noiceClientId: string;
+        /** Data copied from Request to Reply (for possible use on server side e.g. to address rpc reply messages to the original sender) */
+        clientId?: any;
     }
     /**
      * Client can send a request with no expectation of a response.
@@ -30,13 +33,15 @@ export declare namespace JsonRpc2 {
     }
     /**
      * Response object representation of a rpc call.
-     * Response will always contain a result property unless an error occured.
+     * Response will always contain a result property unless an error occurred.
      * In which case, an error property is present.
      */
     interface Response {
         /** An identifier established by the Client. */
         id: number;
-        guid: string;
+        noiceClientId: string;
+        /** Data copied from Request to Reply (for possible use on server side e.g. to address rpc reply messages to the original sender) */
+        clientId?: any;
         /** Result object from the Server if method invocation was successful. */
         result?: any;
         /** Error object from Server if method invocation resulted in an error. */
@@ -82,7 +87,7 @@ export declare namespace JsonRpc2 {
         /**
          * Invokes the handler function when Client sends a Request and sends the Response back.
          * If handler function returns a Promise, then it waits for the promise to be resolved or rejected before returning.
-         * It also wraps the handler in a trycatch so it can send an error response when an exception is thrown.
+         * It also wraps the handler in a try/catch so it can send an error response when an exception is thrown.
          */
         expose: (method: string, handler: (params: any) => Promise<any>) => void;
         /** Invokes the handler function when Client sends a notification. */

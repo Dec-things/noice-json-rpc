@@ -13,8 +13,11 @@ export namespace JsonRpc2 {
      */
     export interface Request extends Notification {
         /** An identifier established by the Client */
-        id: number,
-        guid: string
+        id: number
+        /** Unique id of the Client for routing response messages to the original Client instance */
+        noiceClientId: string
+        /** Data copied from Request to Reply (for possible use on server side e.g. to address rpc reply messages to the original sender) */
+        clientId?: any
     }
 
     /**
@@ -23,10 +26,10 @@ export namespace JsonRpc2 {
     */
     export interface Notification {
         /** Name of the method to be invoked. */
-        method: string,
+        method: string
 
         /** Parameter values to be used during the invocation of the method. */
-        params?: any,
+        params?: any
 
         /** Version of the JSON-RPC protocol. MUST be exactly "2.0". */
         jsonrpc?: '2.0'
@@ -34,13 +37,15 @@ export namespace JsonRpc2 {
 
     /**
      * Response object representation of a rpc call.
-     * Response will always contain a result property unless an error occured.
+     * Response will always contain a result property unless an error occurred.
      * In which case, an error property is present.
      */
     export interface Response {
         /** An identifier established by the Client. */
         id: number
-        guid: string
+        noiceClientId: string
+        /** Data copied from Request to Reply (for possible use on server side e.g. to address rpc reply messages to the original sender) */
+        clientId?: any
 
         /** Result object from the Server if method invocation was successful. */
         result?: any
@@ -105,7 +110,7 @@ export namespace JsonRpc2 {
         /**
          * Invokes the handler function when Client sends a Request and sends the Response back.
          * If handler function returns a Promise, then it waits for the promise to be resolved or rejected before returning.
-         * It also wraps the handler in a trycatch so it can send an error response when an exception is thrown.
+         * It also wraps the handler in a try/catch so it can send an error response when an exception is thrown.
          */
         expose: (method: string, handler: (params: any) => Promise<any>) => void
 

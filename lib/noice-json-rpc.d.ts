@@ -12,7 +12,7 @@ export interface LikeSocketServer {
     clients?: Iterable<LikeSocket>;
 }
 export interface LogOpts {
-    /** All messages will be emmitted and can be handled by client.on('receive', (msg: string) => void) and client.on('send', (msg: string) => any)  */
+    /** All messages will be emitted and can be handled by client.on('receive', (msg: string) => void) and client.on('send', (msg: string) => any)  */
     logEmit?: boolean;
     /** All messages will be logged to console */
     logConsole?: boolean;
@@ -53,12 +53,12 @@ export declare class Client extends EventEmitter implements JsonRpc2.Client {
     call(method: string, params?: any): Promise<any>;
     notify(method: string, params?: any): void;
     /**
-     * Builds an ES6 Proxy where api.domain.method(params) transates into client.send('{domain}.{method}', params) calls
+     * Builds an ES6 Proxy where api.domain.method(params) translates into client.send('{domain}.{method}', params) calls
      * api.domain.on{method} will add event handlers for {method} events
      * api.domain.emit{method} will send {method} notifications to the server
      * The api object leads itself to a very clean interface i.e `await api.Domain.func(params)` calls
      * This allows the consumer to abstract all the internal details of marshalling the message from function call to a string
-     * Calling client.api('') will return an unprefixed client. e.g api.hello() is equivalient to client.send('hello')
+     * Calling client.api('') will return an un-prefixed client. e.g api.hello() is equivalent to client.send('hello')
      */
     api(prefix?: string): any;
 }

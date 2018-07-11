@@ -1,19 +1,17 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach",
             "type": "node",
-            "request": "attach",
-            "port": 5858,
-            "address": "localhost",
-            "restart": false,
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out",
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": null,
-            "preLaunchTask": "mocha-debug",
-            "trace": "all"
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}\\out\\example-construct.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
         }
     ]
 }

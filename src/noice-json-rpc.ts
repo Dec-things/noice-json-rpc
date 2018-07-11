@@ -1,7 +1,7 @@
 import {JsonRpc2} from './json-rpc2'
 import {EventEmitter} from 'events'
 export {JsonRpc2}
-import * as uuidv4 from "uuid/v4"
+import * as uuidv4 from 'uuid/v4'
 
 export interface LikeSocket {
     send(message: string): void
@@ -15,7 +15,7 @@ export interface LikeSocketServer {
 }
 
 export interface LogOpts {
-    /** All messages will be emmitted and can be handled by client.on('receive', (msg: string) => void) and client.on('send', (msg: string) => any)  */
+    /** All messages will be emitted and can be handled by client.on('receive', (msg: string) => void) and client.on('send', (msg: string) => any)  */
     logEmit?: boolean
 
     /** All messages will be logged to console */
@@ -109,7 +109,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
             }
         } else if (message.method) {
             // Server has sent a notification
-            this.emit(message.method, message.params)
+            this.emit(message.method, ...message.params)
         } else {
             this.emit('error', new Error(`Invalid message: ${messageStr}`))
         }
@@ -148,7 +148,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
 
     call(method: string, params?: any): Promise<any> {
         const id = ++this._nextMessageId
-        const message: JsonRpc2.Request = {id, guid: this.guid, method, params}
+        const message: JsonRpc2.Request = {id, noiceClientId: this.guid, method, params}
 
         return new Promise((resolve, reject) => {
             try {
@@ -165,12 +165,12 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
     }
 
     /**
-     * Builds an ES6 Proxy where api.domain.method(params) transates into client.send('{domain}.{method}', params) calls
+     * Builds an ES6 Proxy where api.domain.method(params) translates into client.send('{domain}.{method}', params) calls
      * api.domain.on{method} will add event handlers for {method} events
      * api.domain.emit{method} will send {method} notifications to the server
      * The api object leads itself to a very clean interface i.e `await api.Domain.func(params)` calls
      * This allows the consumer to abstract all the internal details of marshalling the message from function call to a string
-     * Calling client.api('') will return an unprefixed client. e.g api.hello() is equivalient to client.send('hello')
+     * Calling client.api('') will return an un-prefixed client. e.g api.hello() is equivalent to client.send('hello')
      */
     api(prefix?: string): any {
         if (!Proxy) {
@@ -187,6 +187,8 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
                     return Object.prototype
                 } else if (prefix === void 0) { // Prefix is undefined. Create domain prefix
                     target[prop] = this.api(`${prop}.`)
+                } else if (prop === 'on') {
+                    target[prop] = (event: string, handler: Function) => this.on(event, handler)
                 } else if (prop.substr(0, 2) === 'on' && prop.length > 3) {
                     const method = prop[2].toLowerCase() + prop.substr(3)
                     target[prop] = (handler: Function) => this.on(`${prefix}${method}`, handler)
@@ -199,6 +201,9 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
                 }
 
                 return target[prop]
+            },
+            construct: (target: any, argArray: any): object => {
+                return new target(...argArray)
             }
         })
     }
@@ -242,7 +247,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
         }
 
 
-        // Ensure method is atleast defined
+        // Ensure method is at least defined
         if (request && request.method && typeof request.method === 'string') {
             if (request.id && typeof request.id === 'number') {
                 const handler = this._exposedMethodsMap.get(request.method)
@@ -253,13 +258,13 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
                         if (result instanceof Promise) {
                             // Result is a promise, so lets wait for the result and handle accordingly
                             result.then((actualResult: any) => {
-                                this._send(socket, {id: request.id, guid: request.guid, result: actualResult || {}})
+                                this._send(socket, {id: request.id, noiceClientId: request.noiceClientId, clientId: request.clientId, result: actualResult || {}})
                             }).catch((error: Error) => {
                                 this._sendError(socket, request, JsonRpc2.ErrorCode.InternalError, error)
                             })
                         } else {
                             // Result is not a promise so send immediately
-                            this._send(socket, {id: request.id, guid: request.guid, result: result || {}})
+                            this._send(socket, {id: request.id, noiceClientId: request.noiceClientId, clientId: request.clientId, result: result || {}})
                         }
                     } catch (error) {
                         this._sendError(socket, request, JsonRpc2.ErrorCode.InternalError, error)
@@ -303,7 +308,8 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
         try {
             this._send(socket, {
                 id: request && request.id || -1,
-                guid: request.guid,
+                noiceClientId: request.noiceClientId,
+                clientId: request.clientId,
                 error: this._errorFromCode(errorCode, error && error.message || error, request && request.method),
                 method: undefined
             })
@@ -372,9 +378,11 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
                 } else if (prop.substr(0, 2) === 'on' && prop.length > 3) {
                     const method = prop[2].toLowerCase() + prop.substr(3)
                     target[prop] = (handler: Function) => this.on(`${prefix}${method}`, handler)
+                } else if (prop === 'emit') {
+                    target[prop] = (event: string, ...params: any[]) => this.notify(event, params)
                 } else if (prop.substr(0, 4) === 'emit' && prop.length > 5) {
                     const method = prop[4].toLowerCase() + prop.substr(5)
-                    target[prop] = (params: any) => this.notify(`${prefix}${method}`, params)
+                    target[prop] = (...params: any[]) => this.notify(`${prefix}${method}`, params)
                 } else if (prop === 'expose') {
                     target[prop] = (module: any) => {
                         if (!module || typeof module !== 'object') {
