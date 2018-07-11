@@ -97,7 +97,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
             if (this._responsePromiseMap.has(message.id)) {
                 // Resolve promise from pending message
                 const promise = this._responsePromiseMap.get(message.id)
-                if (message.result) {
+                if (message.result !== undefined) {
                     promise.resolve(message.result)
                 } else if (message.error) {
                     promise.reject(new MessageError(message.error))
