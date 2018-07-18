@@ -28,7 +28,7 @@ function setupServer() {
         return a + b
     }
     const testBuffer = async (a: number) => {
-        return new Buffer('hello')
+        return Buffer.from('hello')
     }
 
     api.Test.expose({ sum, testBuffer })
