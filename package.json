@@ -57,6 +57,7 @@
     "ws": "^3.3.2"
   },
   "dependencies": {
+    "json-buffer": "^3.0.0",
     "uuid": "^3.2.1"
   }
 }

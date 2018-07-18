@@ -2,6 +2,7 @@ import {JsonRpc2} from './json-rpc2'
 import {EventEmitter} from 'events'
 export {JsonRpc2}
 import * as uuidv4 from 'uuid/v4'
+import * as JsonBuffer from 'json-buffer'
 
 export interface LikeSocket {
     send(message: string): void
@@ -85,7 +86,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
 
         // Ensure JSON is not malformed
         try {
-            message = JSON.parse(messageStr)
+            message = JsonBuffer.parse(messageStr)
         } catch (e) {
             return this.emit('error', e)
         }
@@ -122,7 +123,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
     }
 
     private _send(message: JsonRpc2.Notification | JsonRpc2.Request) {
-        this._requestQueue.push(JSON.stringify(message))
+        this._requestQueue.push(JsonBuffer.stringify(message))
         this._sendQueuedRequests()
     }
 
@@ -241,7 +242,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
 
         // Ensure JSON is not malformed
         try {
-            request = JSON.parse(messageStr)
+            request = JsonBuffer.parse(messageStr)
         } catch (e) {
             return this._sendError(socket, request, JsonRpc2.ErrorCode.ParseError)
         }
@@ -299,7 +300,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
     }
 
     private _send(socket: LikeSocket, message: JsonRpc2.Response | JsonRpc2.Notification ) {
-        const messageStr = JSON.stringify(message)
+        const messageStr = JsonBuffer.stringify(message)
         this._logMessage(messageStr, 'send')
         socket.send(messageStr)
     }

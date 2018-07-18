@@ -7,8 +7,19 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}\\out\\example-construct.js",
+            "sourceMaps": true,
+            "name": "Launch example",
+            "program": "${workspaceFolder}\\out\\example.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "sourceMaps": true,
+            "name": "Launch example2",
+            "program": "${workspaceFolder}\\out\\example2.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
