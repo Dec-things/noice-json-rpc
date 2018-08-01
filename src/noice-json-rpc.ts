@@ -222,7 +222,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
     private _emitLog: boolean = false
     private _consoleLog: boolean = false
 
-    constructor (server: LikeSocketServer, opts?: ServerOpts) {
+    constructor (server: LikeSocketServer, opts?: ServerOpts, public stringifier?: (data: any) => string, public parser?: (data: string) => any) {
         super()
         this.setLogging(opts)
 
@@ -242,7 +242,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
 
         // Ensure JSON is not malformed
         try {
-            request = JsonBuffer.parse(messageStr)
+            request = this.parser ? this.parser(messageStr) : JsonBuffer.parse(messageStr)
         } catch (e) {
             return this._sendError(socket, request, JsonRpc2.ErrorCode.ParseError)
         }
@@ -300,7 +300,7 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
     }
 
     private _send(socket: LikeSocket, message: JsonRpc2.Response | JsonRpc2.Notification ) {
-        const messageStr = JsonBuffer.stringify(message)
+        const messageStr = this.stringifier ? this.stringifier(message) : JsonBuffer.stringify(message)
         this._logMessage(messageStr, 'send')
         socket.send(messageStr)
     }
