@@ -69,11 +69,13 @@ export declare class Client extends EventEmitter implements JsonRpc2.Client {
  * It just needs to pass in an object that implements LikeSocketServer interface
  */
 export declare class Server extends EventEmitter implements JsonRpc2.Server {
+    stringifier: (data: any) => string;
+    parser: (data: string) => any;
     private _socketServer;
     private _exposedMethodsMap;
     private _emitLog;
     private _consoleLog;
-    constructor(server: LikeSocketServer, opts?: ServerOpts);
+    constructor(server: LikeSocketServer, opts?: ServerOpts, stringifier?: (data: any) => string, parser?: (data: string) => any);
     private processMessage(messageStr, socket);
     /** Set logging for all received and sent messages */
     setLogging({logEmit, logConsole}?: LogOpts): void;
