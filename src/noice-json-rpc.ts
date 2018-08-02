@@ -191,6 +191,8 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
                 if (target[prop]) {
                     return target[prop]
                 }
+                if (prop === 'then')
+                    return undefined
                 // Special handling for prototype so console intellisense works on noice objects
                 if (prop === '__proto__' || prop === 'prototype') {
                     return Object.prototype
@@ -379,7 +381,8 @@ export class Server extends EventEmitter implements JsonRpc2.Server {
                 if (target[prop]) {
                     return target[prop]
                 }
-
+                if (prop === 'then')
+                    return undefined
                 if (prop === '__proto__' || prop === 'prototype') {
                     return Object.prototype
                 } else if (prefix === void 0) {
