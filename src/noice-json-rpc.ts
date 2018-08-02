@@ -64,7 +64,7 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
     private _consoleLog: boolean = false
     private _requestQueue: string[] = []
 
-    constructor(socket: LikeSocket, opts?: ClientOpts) {
+    constructor(socket: LikeSocket, opts?: ClientOpts, public stringifier?: (data: any) => string, public parser?: (data: string) => any) {
         super()
         this.setLogging(opts)
 
@@ -86,7 +86,10 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
 
         // Ensure JSON is not malformed
         try {
-            message = JsonBuffer.parse(messageStr)
+            if (!this.parser)
+                message = JsonBuffer.parse(messageStr)
+            else
+                message = this.parser(messageStr)
         } catch (e) {
             return this.emit('error', e)
         }
@@ -123,7 +126,12 @@ export class Client extends EventEmitter implements JsonRpc2.Client {
     }
 
     private _send(message: JsonRpc2.Notification | JsonRpc2.Request) {
-        this._requestQueue.push(JsonBuffer.stringify(message))
+        let str: string
+        if (this.stringifier)
+            str = this.stringifier(message)
+        else
+            JsonBuffer.stringify(message)
+        this._requestQueue.push(str)
         this._sendQueuedRequests()
     }
 
